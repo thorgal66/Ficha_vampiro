@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ficha en Blanco Editable - Vampiro: La Mascarada 5ª Edición</title>
+<style>
+  @page {
+    size: A4;
+    margin: 10mm;
+  }
+  
+  *, *::before, *::after {
+    box-sizing: border-box;
+  }
+
+  body {
+    font-family: 'Times New Roman', Georgia, serif;
+    background-color: #0b0b0b;
+    color: #e0e0e0;
+    margin: 0;
+    padding: 20px;
+    font-size: 10pt;
+    line-height: 1.2;
+  }
+
+  .container {
+    max-width: 900px;
+    margin: 0 auto;
+    background-color: #111;
+    padding: 20px;
+    border: 1px solid #333;
+    box-shadow: 0 0 20px rgba(0,0,0,0.8);
+  }
+
+  /* Control Panel */
+  .control-panel {
+    background: #1e0000;
+    border: 1px solid #8b0000;
+    padding: 10px 15px;
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-radius: 4px;
+  }
+
+  .control-panel button {
+    background: #8b0000;
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    font-size: 10pt;
+    font-weight: bold;
+    cursor: pointer;
+    border-radius: 3px;
+    transition: background 0.2s;
+  }
+
+  .control-panel button:hover {
+    background: #b30000;
+  }
+
+  @media print {
+    .control-panel {
+      display: none !important;
+    }
+    body {
+      background-color: #0b0b0b;
+      padding: 0;
+    }
+    .container {
+      border: none;
+      box-shadow: none;
+      width: 100%;
+      max-width: 100%;
+      padding: 0;
+    }
+  }
+
+  /* Editable Input Fields */
+  input[type="text"], textarea {
+    background: transparent;
+    border: none;
+    border-bottom: 1px dotted #666;
+    color: #ffffff;
+    font-family: inherit;
+    font-size: 9.5pt;
+    width: 100%;
+    outline: none;
+    padding: 2px 4px;
+  }
+
+  input[type="text"]:focus, textarea:focus {
+    border-bottom: 1px solid #ff4d4d;
+    background: rgba(255, 0, 0, 0.05);
+  }
+
+  textarea {
+    resize: vertical;
+    min-height: 40px;
+    border: 1px dotted #444;
+    padding: 4px;
+  }
+
+  /* Structural Grid System */
+  table.layout-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 10px;
+  }
+
+  table.layout-table td {
+    vertical-align: top;
+    padding: 0;
+  }
+
+  /* Header Section */
+  .header-box {
+    border: 2px solid #8b0000;
+    background-color: #1a0808;
+    padding: 12px 18px;
+    margin-bottom: 14px;
+    border-radius: 4px;
+  }
+
+  .main-title {
+    text-align: center;
+    color: #c00000;
+    font-size: 22pt;
+    font-weight: bold;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    margin-bottom: 2px;
+    font-family: 'Georgia', serif;
+    border-bottom: 1px solid #8b0000;
+    padding-bottom: 4px;
+  }
+
+  .sub-title {
+    text-align: center;
+    color: #a0a0a0;
+    font-size: 9pt;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+
+  .header-grid {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  .header-grid td {
+    padding: 4px 6px;
+    font-size: 9pt;
+  }
+
+  .label {
+    font-weight: bold;
+    color: #a82020;
+    text-transform: uppercase;
+    font-size: 8.5pt;
+    letter-spacing: 0.5px;
+  }
+
+  /* Section Titles */
+  .section-header {
+    background: linear-gradient(90deg, #8b0000, #4a0000);
+    color: #ffffff;
+    font-weight: bold;
+    text-transform: uppercase;
+    font-size: 10.5pt;
+    letter-spacing: 2px;
+    padding: 4px 10px;
+    margin-top: 10px;
+    margin-bottom: 8px;
+    border-left: 4px solid #ff3333;
+    border-radius: 2px;
+  }
+
+  /* Attributes & Skills Dot Table */
+  .dots-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  .dots-table td {
+    padding: 3px 4px;
+    font-size: 9pt;
+  }
+
+  .dots-table td.name {
+    width: 45%;
+    color: #d0d0d0;
+  }
+
+  .dots-table td.dots {
+    width: 55%;
+    text-align: right;
+    white-space: nowrap;
+  }
+
+  /* Interactive Dots */
+  .dot-container, .square-container {
+    display: inline-block;
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .dot {
+    display: inline-block;
+    width: 11px;
+    height: 11px;
+    border-radius: 50%;
+    margin-left: 2px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+
+  .dot.filled {
+    background-color: #c00000;
+    border: 1px solid #ff4d4d;
+    box-shadow: 0 0 3px #ff0000;
+  }
+
+  .dot.empty {
+    background-color: #222222;
+    border: 1px solid #444444;
+  }
+
+  .dot:hover {
+    transform: scale(1.25);
+    border-color: #ff8080;
+  }
+
+  /* Squares for Trackers */
+  .square {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    border: 1px solid #8b0000;
+    background-color: #151515;
+    margin-left: 3px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+
+  .square.filled {
+    background-color: #c00000;
+    box-shadow: 0 0 3px #ff0000;
+  }
+
+  .square:hover {
+    transform: scale(1.2);
+    border-color: #ff4d4d;
+  }
+
+  /* Card Box */
+  .card-box {
+    background-color: #141414;
+    border: 1px solid #2a2a2a;
+    border-top: 2px solid #8b0000;
+    padding: 10px;
+    margin-bottom: 8px;
+    border-radius: 3px;
+  }
+
+  /* Trackers */
+  .tracker-box {
+    text-align: center;
+    padding: 8px;
+    background-color: #181818;
+    border: 1px solid #2c2c2c;
+    border-radius: 4px;
+    margin-bottom: 6px;
+  }
+
+  .tracker-title {
+    font-size: 8.5pt;
+    font-weight: bold;
+    color: #a82020;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+
+  /* Special Discipline Blocks */
+  .discipline-row {
+    margin-bottom: 10px;
+    border-bottom: 1px solid #252525;
+    padding-bottom: 8px;
+  }
+
+  .discipline-row:last-child {
+    border-bottom: none;
+  }
+
+  .discipline-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 4px;
+  }
+
+  .discipline-title-input {
+    font-weight: bold;
+    color: #ff4d4d;
+    font-size: 10pt;
+    text-transform: uppercase;
+    width: 60% !important;
+  }
+
+  /* Footer */
+  .footer {
+    margin-top: 15px;
+    border-top: 1px solid #333;
+    padding-top: 6px;
+    text-align: center;
+    font-size: 8pt;
+    color: #666;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <!-- CONTROL PANEL -->
+  <div class="control-panel">
+    <span style="color: #ff8080; font-weight: bold;">Ficha en Blanco Editable (V5)</span>
+    <div>
+      <span style="font-size: 8.5pt; color: #ccc; margin-right: 15px;">Haz clic en los puntos para asignar valores o escribe directamente.</span>
+      <button onclick="window.print()">Imprimir / Guardar PDF</button>
+    </div>
+  </div>
+
+  <!-- HEADER / PERSONAJE -->
+  <div class="header-box">
+    <div class="main-title">VAMPIRO: LA MASCARADA</div>
+    <div class="sub-title">QUINUTA EDICIÓN &bull; HOJA DE PERSONAJE EN BLANCO</div>
+    
+    <table class="header-grid">
+      <tr>
+        <td class="label" style="width:10%;">Nombre:</td>
+        <td style="width:23%;"><input type="text" value="" placeholder="Nombre del personaje"></td>
+        <td class="label" style="width:10%;">Concepto:</td>
+        <td style="width:23%;"><input type="text" value="" placeholder="Concepto"></td>
+        <td class="label" style="width:10%;">Depredador:</td>
+        <td style="width:24%;"><input type="text" value="" placeholder="Tipo de depredador"></td>
+      </tr>
+      <tr>
+        <td class="label">Sire:</td>
+        <td><input type="text" value="" placeholder="Sire"></td>
+        <td class="label">Clan:</td>
+        <td><input type="text" value="" placeholder="Clan" style="font-weight:bold; color:#ff4d4d;"></td>
+        <td class="label">Ambición:</td>
+        <td><input type="text" value="" placeholder="Ambición"></td>
+      </tr>
+      <tr>
+        <td class="label">Edad:</td>
+        <td><input type="text" value="" placeholder="Edad aparente / real"></td>
+        <td class="label">Generación:</td>
+        <td><input type="text" value="" placeholder="Generación"></td>
+        <td class="label">Deseo:</td>
+        <td><input type="text" value="" placeholder="Deseo"></td>
+      </tr>
+    </table>
+  </div>
+
+  <!-- ATRIBUTOS -->
+  <div class="section-header">ATRIBUTOS</div>
+  <table class="layout-table">
+    <tr>
+      <!-- FISICOS -->
+      <td style="width: 32%; padding-right: 5px;">
+        <div class="card-box">
+          <div style="text-align:center; font-weight:bold; color:#a82020; font-size:9pt; margin-bottom:6px;">FÍSICOS</div>
+          <table class="dots-table">
+            <tr><td class="name"><input type="text" value="Fuerza"></td><td class="dots"><div class="dot-container" data-value="1" data-max="5"></div></td></tr>
+            <tr><td class="name"><input type="text" value="Destreza"></td><td class="dots"><div class="dot-container" data-value="1" data-max="5"></div></td></tr>
+            <tr><td class="name"><input type="text" value="Resistencia"></td><td class="dots"><div class="dot-container" data-value="1" data-max="5"></div></td></tr>
+          </table>
+        </div>
+      </td>
+      
+      <!-- SOCIALES -->
+      <td style="width: 32%; padding-right: 5px; padding-left: 5px;">
+        <div class="card-box">
+          <div style="text-align:center; font-weight:bold; color:#a82020; font-size:9pt; margin-bottom:6px;">SOCIALES</div>
+          <table class="dots-table">
+            <tr><td class="name"><input type="text" value="Carisma"></td><td class="dots"><div class="dot-container" data-value="1" data-max="5"></div></td></tr>
+            <tr><td class="name"><input type="text" value="Manipulación"></td><td class="dots"><div class="dot-container" data-value="1" data-max="5"></div></td></tr>
+            <tr><td class="name"><input type="text" value="Compostura"></td><td class="dots"><div class="dot-container" data-value="1" data-max="5"></div></td></tr>
+          </table>
+        </div>
+      </td>
+
+      <!-- MENTALES -->
+      <td style="width: 36%; padding-left: 5px;">
+        <div class="card-box">
+          <div style="text-align:center; font-weight:bold; color:#a82020; font-size:9pt; margin-bottom:6px;">MENTALES</div>
+          <table class="dots-table">
+            <tr><td class="name"><input type="text" value="Inteligencia"></td><td class="dots"><div class="dot-container" data-value="1" data-max="5"></div></td></tr>
+            <tr><td class="name"><input type="text" value="Astucia"></td><td class="dots"><div class="dot-container" data-value="1" data-max="5"></div></td></tr>
+            <tr><td class="name"><input type="text" value="Resolución"></td><td class="dots"><div class="dot-container" data-value="1" data-max="5"></div></td></tr>
+          </table>
+        </div>
+      </td>
+    </tr>
+  </table>
+
+  <!-- HABILIDADES -->
+  <div class="section-header">HABILIDADES</div>
+  <table class="layout-table">
+    <tr>
+      <!-- FISICAS -->
+      <td style="width: 32%; padding-right: 5px;">
+        <div class="card-box">
+          <table class="dots-table">
+            <tr><td class="name"><input type="text" value="Atletismo"></td><td class="dots"><div class="dot-container" data-value="0" data-max="5"></div></td></tr>
+            <tr><td class="name"><input type="text" value="Pelea"></td><td class="dots"><div class="dot-container" data-value="0" data-max="5"></div></td></tr>
+            <tr><td class="name"><input type="text" value="Conducción"></td><td class="dots"><div class="dot-container" data-value="0" data-max="5"></div></td></tr>
+            <tr><td class="name"><input type="text" value="Armas de Fuego"></td><td class="dots"><div class="dot-container" data-value="0" data-max="5"></div></td></tr>
+            <tr><td class="name"><input type="text" value="Hurto"></td><td class="dots"><div class="dot-container" data-value="0" data-max="5"></div></td></tr>
+            <tr><td class="name"><input type="text" value="Sigilo"></td><td class="dots"><div class="dot-container" data-value="0" data-max="5"></div></td></tr>
+            <tr><td class="name"><input type="text" value="Supervivencia"></td><td class="dots"><div class="dot-container" data-value="0" data-max="5"></div></td></tr>
+            <tr><td class="name"><input type="text" value="Trato Animal"></td><td class="dots"><div class="dot-container" data-value="0" data-max="5"></div></td></tr>
+            <tr><td class="name"><input type="text" value="Armas Blancas"></td><td class="dots"><div class="dot-container" data-value="0" data-max="5"></div></td></tr>
+          </table>
+        </div>
+      </td>
+
+      <!-- SOCIALES -->
+      <td style="width: 32%; padding-right: 5px; padding-left: 5px;">
+        <div class="card-box">
+          <table class="dots-table">
+            <tr><td class="name"><input type="text" value="Empatía"></td><td class="dots"><div class="dot-container" data-value="0" data-max="5"></div></td></tr>
+            <tr><td class="name"><input type="text" value="Intimidación"></td><td class="dots"><div class="dot-container" data-value="0" data-max="5"></div></td></tr>
+            <tr><td class="name"><input type="text" value="Liderazgo"></td><td class="dots"><div class="dot-container" data-value="0" data-max="5"></div></td></tr>
+            <tr><td class="name"><input type="text" value="Persuasión"></td><td class="dots"><div class="dot-container" data-value="0" data-max="5"></div></td></tr>
+            <tr><td class="name"><input type="text" value="Perspicacia"></td><td class="dots"><div class="dot-container" data-value="0" data-max="5"></div></td></tr>
+            <tr><td class="name"><input type="text" value="Subterfugio"></td><td class="dots"><div class="dot-container" data-value="0" data-max="5"></div></td></tr>
+            <tr><td class="name"><input type="text" value="Callejeo"></td><td class="dots"><div class="dot-container" data-value="0" data-max="5"></div></td></tr>
+            <tr><td class="name"><input type="text" value="Interpretación"></td><td class="dots"><div class="dot-container" data-value="0" data-max="5"></div></td></tr>
+            <tr><td class="name"><input type="text" value="Etiqueta"></td><td class="dots"><div class="dot-container" data-value="0" data-max="5"></div></td></tr>
+          </table>
+        </div>
+      </td>
+
+      <!-- MENTALES -->
+      <td style="width: 36%; padding-left: 5px;">
+        <div class="card-box">
+          <table class="dots-table">
+            <tr><td class="name"><input type="text" value="Erudición"></td><td class="dots"><div class="dot-container" data-value="0" data-max="5"></div></td></tr>
+            <tr><td class="name"><input type="text" value="Ciencias"></td><td class="dots"><div class="dot-container" data-value="0" data-max="5"></div></td></tr>
+            <tr><td class="name"><input type="text" value="Finanzas"></td><td class="dots"><div class="dot-container" data-value="0" data-max="5"></div></td></tr>
+            <tr><td class="name"><input type="text" value="Investigación"></td><td class="dots"><div class="dot-container" data-value="0" data-max="5"></div></td></tr>
+            <tr><td class="name"><input type="text" value="Medicina"></td><td class="dots"><div class="dot-container" data-value="0" data-max="5"></div></td></tr>
+            <tr><td class="name"><input type="text" value="Ocultismo"></td><td class="dots"><div class="dot-container" data-value="0" data-max="5"></div></td></tr>
+            <tr><td class="name"><input type="text" value="Política"></td><td class="dots"><div class="dot-container" data-value="0" data-max="5"></div></td></tr>
+            <tr><td class="name"><input type="text" value="Tecnología"></td><td class="dots"><div class="dot-container" data-value="0" data-max="5"></div></td></tr>
+            <tr><td class="name"><input type="text" value="Conciencia"></td><td class="dots"><div class="dot-container" data-value="0" data-max="5"></div></td></tr>
+          </table>
+        </div>
+      </td>
+    </tr>
+  </table>
+
+  <!-- DISCIPLINAS Y ESTADÍSTICAS DERIVADAS -->
+  <table class="layout-table">
+    <tr>
+      <!-- DISCIPLINAS -->
+      <td style="width: 50%; padding-right: 5px;">
+        <div class="section-header">DISCIPLINAS</div>
+        <div class="card-box" style="min-height: 175px;">
+          
+          <div class="discipline-row">
+            <div class="discipline-header">
+              <input type="text" class="discipline-title-input" value="" placeholder="Nombre de Disciplina">
+              <div class="dot-container" data-value="0" data-max="5"></div>
+            </div>
+            <textarea placeholder="Poderes y descripción..."></textarea>
+          </div>
+
+          <div class="discipline-row">
+            <div class="discipline-header">
+              <input type="text" class="discipline-title-input" value="" placeholder="Nombre de Disciplina">
+              <div class="dot-container" data-value="0" data-max="5"></div>
+            </div>
+            <textarea placeholder="Poderes y descripción..."></textarea>
+          </div>
+
+          <div class="discipline-row">
+            <div class="discipline-header">
+              <input type="text" class="discipline-title-input" value="" placeholder="Nombre de Disciplina">
+              <div class="dot-container" data-value="0" data-max="5"></div>
+            </div>
+            <textarea placeholder="Poderes y descripción..."></textarea>
+          </div>
+
+        </div>
+      </td>
+
+      <!-- ESTADÍSTICAS DERIVADAS Y RASTREADORES -->
+      <td style="width: 50%; padding-left: 5px;">
+        <div class="section-header">ESTADO Y MEDIDORES</div>
+        <div class="card-box" style="min-height: 175px;">
+          
+          <!-- SALUD Y VOLUNTAD -->
+          <table style="width:100%; border-collapse:collapse; margin-bottom: 8px;">
+            <tr>
+              <td style="width:50%; padding-right:4px;">
+                <div class="tracker-box">
+                  <div class="tracker-title">SALUD</div>
+                  <div class="square-container" data-value="0" data-max="6"></div>
+                </div>
+              </td>
+              <td style="width:50%; padding-left:4px;">
+                <div class="tracker-box">
+                  <div class="tracker-title">VOLUNTAD</div>
+                  <div class="square-container" data-value="0" data-max="6"></div>
+                </div>
+              </td>
+            </tr>
+          </table>
+
+          <!-- ANSIA Y HUMANIDAD -->
+          <table style="width:100%; border-collapse:collapse; margin-bottom: 8px;">
+            <tr>
+              <td style="width:50%; padding-right:4px;">
+                <div class="tracker-box">
+                  <div class="tracker-title">ANSIA</div>
+                  <div class="square-container" data-value="1" data-max="5"></div>
+                </div>
+              </td>
+              <td style="width:50%; padding-left:4px;">
+                <div class="tracker-box">
+                  <div class="tracker-title">HUMANIDAD</div>
+                  <div class="square-container" data-value="7" data-max="10"></div>
+                </div>
+              </td>
+            </tr>
+          </table>
+
+          <div style="font-size: 8.5pt; color: #a0a0a0; text-align: center; margin-top: 6px; display: flex; justify-content: space-around; align-items: center;">
+            <div>
+              <strong style="color:#ff4d4d;">Potencia Sangre:</strong>
+              <div class="dot-container" data-value="1" data-max="5" style="vertical-align: middle;"></div>
+            </div>
+            <div>
+              <strong style="color:#ff4d4d;">Controles:</strong> <input type="text" value="" placeholder="Ej: 1 Dado" style="width: 65px; text-align: center;">
+            </div>
+          </div>
+
+        </div>
+      </td>
+    </tr>
+  </table>
+
+  <!-- TRASFONDOS, CONVICCIONES Y DETALLES -->
+  <div class="section-header">TRASFONDOS, CONVICCIONES Y PIEDRA DE TOQUE</div>
+  <table class="layout-table">
+    <tr>
+      <td style="width: 50%; padding-right: 5px;">
+        <div class="card-box">
+          <div style="font-weight:bold; color:#ff4d4d; font-size:9pt; margin-bottom:4px; border-bottom:1px solid #333; padding-bottom:2px;">PIEDRA DE TOQUE & CONVICCIÓN</div>
+          <textarea style="min-height: 55px;" placeholder="Detalla tu Piedra de Toque y Convicciones..."></textarea>
+          
+          <div style="font-weight:bold; color:#ff4d4d; font-size:9pt; margin-top:6px; margin-bottom:4px; border-bottom:1px solid #333; padding-bottom:2px;">MALDICIÓN DE CLAN</div>
+          <textarea style="min-height: 45px;" placeholder="Maldición del Clan..."></textarea>
+        </div>
+      </td>
+
+      <td style="width: 50%; padding-left: 5px;">
+        <div class="card-box">
+          <div style="font-weight:bold; color:#ff4d4d; font-size:9pt; margin-bottom:4px; border-bottom:1px solid #333; padding-bottom:2px;">VENTAJAS Y MÉRITOS</div>
+          <textarea style="min-height: 115px;" placeholder="Lista tus contactos, recursos y méritos/defectos..."></textarea>
+        </div>
+      </td>
+    </tr>
+  </table>
+
+  <div class="footer">
+    Mundo de Tinieblas &bull; Vampiro: La Mascarada 5ª Edición &bull; Hoja Interactiva en Blanco
+  </div>
+
+</div>
+
+<!-- JAVASCRIPT FOR INTERACTIVE DOTS AND SQUARES -->
+<script>
+  function renderDots(container) {
+    const value = parseInt(container.getAttribute('data-value')) || 0;
+    const max = parseInt(container.getAttribute('data-max')) || 5;
+    container.innerHTML = '';
+
+    for (let i = 1; i <= max; i++) {
+      const dot = document.createElement('span');
+      dot.className = 'dot ' + (i <= value ? 'filled' : 'empty');
+      dot.addEventListener('click', () => {
+        const newValue = (i === value) ? i - 1 : i;
+        container.setAttribute('data-value', newValue);
+        renderDots(container);
+      });
+      container.appendChild(dot);
+    }
+  }
+
+  function renderSquares(container) {
+    const value = parseInt(container.getAttribute('data-value')) || 0;
+    const max = parseInt(container.getAttribute('data-max')) || 6;
+    container.innerHTML = '';
+
+    for (let i = 1; i <= max; i++) {
+      const square = document.createElement('span');
+      square.className = 'square ' + (i <= value ? 'filled' : 'empty');
+      square.addEventListener('click', () => {
+        const newValue = (i === value) ? i - 1 : i;
+        container.setAttribute('data-value', newValue);
+        renderSquares(container);
+      });
+      container.appendChild(square);
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('.dot-container').forEach(renderDots);
+    document.querySelectorAll('.square-container').forEach(renderSquares);
+  });
+</script>
+
+</body>
+</html>
