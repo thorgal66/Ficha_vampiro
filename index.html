@@ -251,7 +251,14 @@
     box-shadow: 0 0 3px #ff0000;
   }
 
-  .square:hover {
+  .square.disabled {
+    background-color: #080808;
+    border-color: #222;
+    cursor: not-allowed;
+    opacity: 0.3;
+  }
+
+  .square:not(.disabled):hover {
     transform: scale(1.2);
     border-color: #ff4d4d;
   }
@@ -281,6 +288,12 @@
     font-weight: bold;
     color: #a82020;
     text-transform: uppercase;
+    margin-bottom: 2px;
+  }
+
+  .tracker-subtitle {
+    font-size: 7.5pt;
+    color: #888;
     margin-bottom: 6px;
   }
 
@@ -331,7 +344,7 @@
   <div class="control-panel">
     <span style="color: #ff8080; font-weight: bold;">Ficha en Blanco Editable (V5)</span>
     <div>
-      <span style="font-size: 8.5pt; color: #ccc; margin-right: 15px;">Haz clic en los puntos para asignar valores o escribe directamente.</span>
+      <span style="font-size: 8.5pt; color: #ccc; margin-right: 15px;">Salud y Voluntad se calculan automáticamente según los Atributos.</span>
       <button onclick="window.print()">Imprimir / Guardar PDF</button>
     </div>
   </div>
@@ -339,7 +352,7 @@
   <!-- HEADER / PERSONAJE -->
   <div class="header-box">
     <div class="main-title">VAMPIRO: LA MASCARADA</div>
-    <div class="sub-title">QUINUTA EDICIÓN &bull; HOJA DE PERSONAJE EN BLANCO</div>
+    <div class="sub-title">QUINTA EDICIÓN &bull; HOJA DE PERSONAJE DINÁMICA</div>
     
     <table class="header-grid">
       <tr>
@@ -380,7 +393,7 @@
           <table class="dots-table">
             <tr><td class="name"><input type="text" value="Fuerza"></td><td class="dots"><div class="dot-container" data-value="1" data-max="5"></div></td></tr>
             <tr><td class="name"><input type="text" value="Destreza"></td><td class="dots"><div class="dot-container" data-value="1" data-max="5"></div></td></tr>
-            <tr><td class="name"><input type="text" value="Resistencia"></td><td class="dots"><div class="dot-container" data-value="1" data-max="5"></div></td></tr>
+            <tr><td class="name"><input type="text" value="Resistencia"></td><td class="dots"><div class="dot-container" id="resistencia-dots" data-value="1" data-max="5" data-attr="resistencia"></div></td></tr>
           </table>
         </div>
       </td>
@@ -392,7 +405,7 @@
           <table class="dots-table">
             <tr><td class="name"><input type="text" value="Carisma"></td><td class="dots"><div class="dot-container" data-value="1" data-max="5"></div></td></tr>
             <tr><td class="name"><input type="text" value="Manipulación"></td><td class="dots"><div class="dot-container" data-value="1" data-max="5"></div></td></tr>
-            <tr><td class="name"><input type="text" value="Compostura"></td><td class="dots"><div class="dot-container" data-value="1" data-max="5"></div></td></tr>
+            <tr><td class="name"><input type="text" value="Compostura"></td><td class="dots"><div class="dot-container" id="compostura-dots" data-value="1" data-max="5" data-attr="compostura"></div></td></tr>
           </table>
         </div>
       </td>
@@ -404,7 +417,7 @@
           <table class="dots-table">
             <tr><td class="name"><input type="text" value="Inteligencia"></td><td class="dots"><div class="dot-container" data-value="1" data-max="5"></div></td></tr>
             <tr><td class="name"><input type="text" value="Astucia"></td><td class="dots"><div class="dot-container" data-value="1" data-max="5"></div></td></tr>
-            <tr><td class="name"><input type="text" value="Resolución"></td><td class="dots"><div class="dot-container" data-value="1" data-max="5"></div></td></tr>
+            <tr><td class="name"><input type="text" value="Resolución"></td><td class="dots"><div class="dot-container" id="resolucion-dots" data-value="1" data-max="5" data-attr="resolucion"></div></td></tr>
           </table>
         </div>
       </td>
@@ -474,7 +487,7 @@
       <!-- DISCIPLINAS -->
       <td style="width: 50%; padding-right: 5px;">
         <div class="section-header">DISCIPLINAS</div>
-        <div class="card-box" style="min-height: 175px;">
+        <div class="card-box" style="min-height: 185px;">
           
           <div class="discipline-row">
             <div class="discipline-header">
@@ -506,7 +519,7 @@
       <!-- ESTADÍSTICAS DERIVADAS Y RASTREADORES -->
       <td style="width: 50%; padding-left: 5px;">
         <div class="section-header">ESTADO Y MEDIDORES</div>
-        <div class="card-box" style="min-height: 175px;">
+        <div class="card-box" style="min-height: 185px;">
           
           <!-- SALUD Y VOLUNTAD -->
           <table style="width:100%; border-collapse:collapse; margin-bottom: 8px;">
@@ -514,13 +527,15 @@
               <td style="width:50%; padding-right:4px;">
                 <div class="tracker-box">
                   <div class="tracker-title">SALUD</div>
-                  <div class="square-container" data-value="0" data-max="6"></div>
+                  <div class="tracker-subtitle">Resistencia + 3</div>
+                  <div class="square-container" id="salud-tracker" data-value="0" data-max="10" data-limit="4"></div>
                 </div>
               </td>
               <td style="width:50%; padding-left:4px;">
                 <div class="tracker-box">
                   <div class="tracker-title">VOLUNTAD</div>
-                  <div class="square-container" data-value="0" data-max="6"></div>
+                  <div class="tracker-subtitle">Compostura + Resolución</div>
+                  <div class="square-container" id="voluntad-tracker" data-value="0" data-max="10" data-limit="2"></div>
                 </div>
               </td>
             </tr>
@@ -532,13 +547,15 @@
               <td style="width:50%; padding-right:4px;">
                 <div class="tracker-box">
                   <div class="tracker-title">ANSIA</div>
-                  <div class="square-container" data-value="1" data-max="5"></div>
+                  <div class="tracker-subtitle">Medidor de Sangre</div>
+                  <div class="square-container" data-value="1" data-max="5" data-limit="5"></div>
                 </div>
               </td>
               <td style="width:50%; padding-left:4px;">
                 <div class="tracker-box">
                   <div class="tracker-title">HUMANIDAD</div>
-                  <div class="square-container" data-value="7" data-max="10"></div>
+                  <div class="tracker-subtitle">Estado Moral</div>
+                  <div class="square-container" data-value="7" data-max="10" data-limit="10"></div>
                 </div>
               </td>
             </tr>
@@ -583,13 +600,31 @@
   </table>
 
   <div class="footer">
-    Mundo de Tinieblas &bull; Vampiro: La Mascarada 5ª Edición &bull; Hoja Interactiva en Blanco
+    Mundo de Tinieblas &bull; Vampiro: La Mascarada 5ª Edición &bull; Hoja Interactiva Dinámica
   </div>
 
 </div>
 
-<!-- JAVASCRIPT FOR INTERACTIVE DOTS AND SQUARES -->
+<!-- JAVASCRIPT FOR DYNAMIC CALCULATIONS & INTERACTIVE ELEMENTS -->
 <script>
+  function updateCalculatedTrackers() {
+    const resistencia = parseInt(document.getElementById('resistencia-dots').getAttribute('data-value')) || 0;
+    const compostura = parseInt(document.getElementById('compostura-dots').getAttribute('data-value')) || 0;
+    const resolucion = parseInt(document.getElementById('resolucion-dots').getAttribute('data-value')) || 0;
+
+    const maxSalud = resistencia + 3;
+    const maxVoluntad = compostura + resolucion;
+
+    const saludTracker = document.getElementById('salud-tracker');
+    const voluntadTracker = document.getElementById('voluntad-tracker');
+
+    saludTracker.setAttribute('data-limit', maxSalud);
+    voluntadTracker.setAttribute('data-limit', maxVoluntad);
+
+    renderSquares(saludTracker);
+    renderSquares(voluntadTracker);
+  }
+
   function renderDots(container) {
     const value = parseInt(container.getAttribute('data-value')) || 0;
     const max = parseInt(container.getAttribute('data-max')) || 5;
@@ -602,6 +637,9 @@
         const newValue = (i === value) ? i - 1 : i;
         container.setAttribute('data-value', newValue);
         renderDots(container);
+        if (container.hasAttribute('data-attr')) {
+          updateCalculatedTrackers();
+        }
       });
       container.appendChild(dot);
     }
@@ -609,17 +647,23 @@
 
   function renderSquares(container) {
     const value = parseInt(container.getAttribute('data-value')) || 0;
-    const max = parseInt(container.getAttribute('data-max')) || 6;
+    const max = parseInt(container.getAttribute('data-max')) || 10;
+    const limit = container.hasAttribute('data-limit') ? parseInt(container.getAttribute('data-limit')) : max;
+
     container.innerHTML = '';
 
     for (let i = 1; i <= max; i++) {
       const square = document.createElement('span');
-      square.className = 'square ' + (i <= value ? 'filled' : 'empty');
-      square.addEventListener('click', () => {
-        const newValue = (i === value) ? i - 1 : i;
-        container.setAttribute('data-value', newValue);
-        renderSquares(container);
-      });
+      if (i > limit) {
+        square.className = 'square disabled';
+      } else {
+        square.className = 'square ' + (i <= value ? 'filled' : 'empty');
+        square.addEventListener('click', () => {
+          const newValue = (i === value) ? i - 1 : i;
+          container.setAttribute('data-value', newValue);
+          renderSquares(container);
+        });
+      }
       container.appendChild(square);
     }
   }
@@ -627,6 +671,7 @@
   document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('.dot-container').forEach(renderDots);
     document.querySelectorAll('.square-container').forEach(renderSquares);
+    updateCalculatedTrackers();
   });
 </script>
 
